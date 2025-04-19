@@ -1,18 +1,18 @@
 <template>
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-bold text-gray-800">
-                Medios Publicitarios
-            </h2>
+            <h2 class="text-xl font-bold text-primary">Medios Publicitarios</h2>
         </template>
 
         <div class="p-6">
+            <!-- Mensaje flash -->
             <div
                 v-if="$page.props.flash && $page.props.flash.success"
-                class="mb-4 p-3 bg-green-100 border text-green-800 rounded"
+                class="mb-4 p-3 bg-green-100 border border-green-400 text-green-800 rounded-md shadow"
             >
                 {{ $page.props.flash.success }}
             </div>
+
             <!-- Formulario de creación -->
             <form
                 @submit.prevent="submit"
@@ -44,8 +44,6 @@
                     placeholder="Precio por día"
                     class="input"
                 />
-
-                <!-- Campo de imagen -->
                 <input
                     ref="imageInput"
                     type="file"
@@ -56,12 +54,13 @@
                 <div class="md:col-span-2">
                     <button
                         type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded"
+                        class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded transition"
                     >
                         Agregar
                     </button>
                 </div>
             </form>
+
             <!-- Filtros de búsqueda -->
             <div class="mb-6 flex flex-col md:flex-row md:items-center gap-4">
                 <input
@@ -79,14 +78,17 @@
                 </select>
                 <button
                     @click="applyFilters"
-                    class="bg-blue-500 text-white px-4 py-2 rounded"
+                    class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded transition"
                 >
                     Buscar
                 </button>
             </div>
+
             <!-- Tabla de medios -->
-            <table class="min-w-full bg-white rounded shadow overflow-hidden">
-                <thead class="bg-gray-100">
+            <table
+                class="min-w-full bg-white rounded-lg shadow overflow-hidden text-sm"
+            >
+                <thead class="bg-primary text-white">
                     <tr>
                         <th class="text-left p-3">Imagen</th>
                         <th class="text-left p-3">Nombre</th>
@@ -100,7 +102,7 @@
                     <tr
                         v-for="medio in medios"
                         :key="medio.id"
-                        class="border-t"
+                        class="border-t hover:bg-gray-50 transition"
                     >
                         <td class="p-3">
                             <img
@@ -117,7 +119,7 @@
                         <td class="p-3 flex gap-2">
                             <button
                                 @click="edit(medio)"
-                                class="text-sm text-blue-600 hover:underline"
+                                class="text-sm text-primary hover:underline"
                             >
                                 Editar
                             </button>
@@ -129,7 +131,7 @@
                             </button>
                             <button
                                 @click="verDetalle(medio.id)"
-                                class="text-sm text-blue-600 hover:underline"
+                                class="text-sm text-primary hover:underline"
                             >
                                 Ver detalles
                             </button>
@@ -137,12 +139,13 @@
                     </tr>
                 </tbody>
             </table>
+
             <!-- Paginación -->
             <div class="mt-6 flex justify-center items-center gap-4">
                 <button
                     @click="goToPage(pagination.current_page - 1)"
                     :disabled="pagination.current_page === 1"
-                    class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                    class="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 hover:bg-secondary transition"
                 >
                     Anterior
                 </button>
@@ -153,7 +156,7 @@
                 <button
                     @click="goToPage(pagination.current_page + 1)"
                     :disabled="pagination.current_page === pagination.last_page"
-                    class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                    class="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 hover:bg-secondary transition"
                 >
                     Siguiente
                 </button>
@@ -175,10 +178,6 @@ const imageInput = ref(null);
 const props = usePage().props;
 const medios = ref(props.medios.data);
 
-const handleFileChange = (e) => {
-    form.imagen = e.target.files[0];
-    console.log("Archivo seleccionado:", form.imagen);
-};
 const form = useForm({
     nombre: "",
     ubicacion: "",
@@ -186,6 +185,11 @@ const form = useForm({
     precio_por_dia: "",
     imagen: null,
 });
+
+const handleFileChange = (e) => {
+    form.imagen = e.target.files[0];
+    console.log("Archivo seleccionado:", form.imagen);
+};
 
 const submit = () => {
     form.post(route("admin.medios.store"), {
@@ -211,6 +215,7 @@ const destroy = (id) => {
         router.delete(route("admin.medios.destroy", id));
     }
 };
+
 const pagination = ref({
     current_page: props.medios.current_page,
     last_page: props.medios.last_page,
@@ -245,6 +250,6 @@ const goToPage = (page) => {
 
 <style scoped>
 .input {
-    @apply w-full px-4 py-2 border rounded;
+    @apply w-full px-4 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition;
 }
 </style>

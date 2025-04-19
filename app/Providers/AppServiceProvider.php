@@ -2,26 +2,24 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\View;
-use Inertia\Inertia;
-class RouteServiceProvider extends ServiceProvider
+use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
 {
     /**
-     * This is where users will be redirected after login.
+     * Register any application services.
      */
-    public const HOME = '/redirect-by-role';
+    public function register(): void
+    {
+        //
+    }
 
     /**
-     * Define your route model bindings, pattern filters, etc.
+     * Bootstrap any application services.
      */
     public function boot(): void
-{
-    Inertia::share([
-        'auth' => fn () => [
-            'user' => auth()->user(),
-        ],
-    ]);
-}
+    {
+        Vite::prefetch(concurrency: 3);
+    }
 }

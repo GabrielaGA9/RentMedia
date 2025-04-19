@@ -3,10 +3,17 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Http\Controllers\AdminDashboardController;
+use App\Models\Reservation;
+use App\Mail\ConfirmacionReserva;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
+
 
 // Página de bienvenida
 Route::get('/', function () {
@@ -19,10 +26,12 @@ Route::get('/', function () {
 });
 // Rutas para administradores (gestionan medios)
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [MediaController::class, 'index'])->name('dashboard');
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/medios', [MediaController::class, 'index'])->name('medios.index');
     Route::post('/medios', [MediaController::class, 'store'])->name('medios.store');
     Route::put('/medios/{media}', [MediaController::class, 'update'])->name('medios.update');
     Route::delete('/medios/{media}', [MediaController::class, 'destroy'])->name('medios.destroy');
+
 });
 
 
@@ -50,7 +59,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/medios/{media}/fechas-reservadas', [MediaController::class, 'fechasReservadas'])->name('medios.fechasReservadas');
     Route::post('/reservas', [ReservationController::class, 'store'])->name('reservas.store');
     Route::get('/mis-reservas', [ReservationController::class, 'historial'])->name('reservas.historial');
-    
+    Route::get('/reservas/{reserva}/pagar', [ReservationController::class, 'pagar'])->name('reservas.pagar');
+    Route::post('/payment/checkout-session', [PaymentController::class, 'createCheckoutSession']);
 
 });
 
@@ -61,5 +71,27 @@ Route::get('/redirect-by-role', function () {
         ? redirect()->route('admin.dashboard')
         : redirect()->route('cliente.inicio');
 });
+Route::get('/checkout/success', function (Request $request) {
+    $reserva = Reservation::find($request->reserva_id);
+
+    if ($reserva && !$reserva->pagada) {
+        $reserva->pagada = true;
+        $reserva->save();
+
+        // Enviar correo
+        Mail::to($reserva->user->email)->send(new ConfirmacionReserva($reserva));
+    }
+
+    return Inertia::render('Checkout/Success');
+})->name('checkout.success');
+
+Route::get('/checkout/cancel', function () {
+    return Inertia::render('Checkout/Cancel');
+})->name('checkout.cancel');
+
+// Ruta de fallback para evitar error "Route [dashboard] not defined"
+Route::get('/dashboard', function () {
+    return redirect('/redirect-by-role');
+})->middleware(['auth'])->name('dashboard');
 
 require __DIR__.'/auth.php';

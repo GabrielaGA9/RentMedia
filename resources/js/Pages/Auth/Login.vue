@@ -1,11 +1,5 @@
 <script setup>
-import Checkbox from '@/Components/Checkbox.vue';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from "@inertiajs/vue3";
 
 defineProps({
     canResetPassword: {
@@ -17,84 +11,159 @@ defineProps({
 });
 
 const form = useForm({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
     remember: false,
 });
 
 const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
+    form.post(route("login"), {
+        onFinish: () => form.reset("password"),
     });
 };
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Log in" />
+    <Head title="Log in" />
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
-            {{ status }}
-        </div>
+    <!-- Imagen de fondo en toda la pantalla -->
+    <div
+        class="min-h-screen flex items-center justify-center bg-cover bg-center px-4"
+        style="background-image: url('/storage/img/fondo3.jpg')"
+    >
+        <!-- Contenedor del formulario con fondo blanco translúcido -->
+        <div
+            class="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-md"
+        >
+            <div class="flex flex-col justify-center">
+                <div class="mb-6">
+                    <img
+                        src="/logo.svg"
+                        alt="RentMedia"
+                        class="w-10 h-10 text-primary"
+                    />
+                </div>
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="mt-4 block">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                    Iniciar Sesión
+                </h2>
+                <p class="text-sm text-gray-600 mb-6">
+                    Aún no tienes cuenta?
+                    <a href="#" class="text-primary hover:underline"
+                        >Regístrate</a
                     >
-                </label>
-            </div>
+                </p>
 
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                <div
+                    v-if="status"
+                    class="mb-4 text-sm font-medium text-green-600"
                 >
-                    Forgot your password?
-                </Link>
+                    {{ status }}
+                </div>
 
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Log in
-                </PrimaryButton>
+                <form @submit.prevent="submit" class="space-y-4">
+                    <div>
+                        <label
+                            for="email"
+                            class="block text-sm font-medium text-gray-700"
+                            >Email</label
+                        >
+                        <input
+                            id="email"
+                            v-model="form.email"
+                            type="email"
+                            required
+                            autofocus
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary focus:border-primary"
+                        />
+                        <p
+                            class="text-sm text-red-500 mt-1"
+                            v-if="form.errors.email"
+                        >
+                            {{ form.errors.email }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label
+                            for="password"
+                            class="block text-sm font-medium text-gray-700"
+                            >Contraseña</label
+                        >
+                        <input
+                            id="password"
+                            v-model="form.password"
+                            type="password"
+                            required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-primary focus:border-primary"
+                        />
+                        <p
+                            class="text-sm text-red-500 mt-1"
+                            v-if="form.errors.password"
+                        >
+                            {{ form.errors.password }}
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input
+                                type="checkbox"
+                                v-model="form.remember"
+                                class="rounded border-gray-300 text-primary shadow-sm focus:ring-primary"
+                            />
+                            <span class="ml-2 text-sm text-gray-600"
+                                >Récuerdame</span
+                            >
+                        </label>
+
+                        <Link
+                            v-if="canResetPassword"
+                            :href="route('password.request')"
+                            class="text-sm text-primary hover:underline"
+                        >
+                            Olvidaste tu contraseña?
+                        </Link>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full bg-primary text-white py-2 rounded-md hover:bg-secondary transition duration-300"
+                        :disabled="form.processing"
+                    >
+                        Iniciar Sesión
+                    </button>
+
+                    <div class="text-center text-sm text-gray-500">
+                        O ingresa con
+                    </div>
+
+                    <div class="flex justify-center space-x-4">
+                        <a
+                            href="#"
+                            class="flex items-center justify-center px-4 py-2 border rounded-md"
+                        >
+                            <img
+                                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                                alt="Google"
+                                class="w-5 h-5 mr-2"
+                            />
+                            Google
+                        </a>
+                        <a
+                            href="#"
+                            class="flex items-center justify-center px-4 py-2 border rounded-md"
+                        >
+                            <img
+                                src="https://www.svgrepo.com/show/349375/github.svg"
+                                alt="GitHub"
+                                class="w-5 h-5 mr-2"
+                            />
+                            GitHub
+                        </a>
+                    </div>
+                </form>
             </div>
-        </form>
-    </GuestLayout>
+        </div>
+    </div>
 </template>
